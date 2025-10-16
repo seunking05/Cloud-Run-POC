@@ -1,93 +1,45 @@
-name: Deploy to Cloud Run
+name: Deploy to Google Cloud Run
 
 on:
-  workflow_dispatch:        # <-- adds manual trigger
   push:
     branches:
-      - main                # also runs automatically when main is updated
+      - main
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: swift-castle-475200-j1
+  REGION: us-central1
+  SERVICE: node-cloudrun-demo
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    env:
-      PROJECT_ID: swift-castle-475200-j1
-      REGION: us-central1
-      SERVICE_NAME: node-cloudrun-demo
-      REPO_NAME: node-repo
-
     steps:
-      # ----------------------------------------------
-      # Step 1: Checkout repository
-      # ----------------------------------------------
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ----------------------------------------------
-      # Step 2: Set up Google Cloud SDK
-      # ----------------------------------------------
-      - name: Set up Google Cloud SDK
+      - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
         with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
           project_id: ${{ env.PROJECT_ID }}
-          install_components: "beta"
 
-      # ----------------------------------------------
-      # Step 3: Validate GCP service-account key format
-      # ----------------------------------------------
-      - name: Validate GCP_SA_KEY JSON
-        run: |
-          echo "${{ secrets.GCP_SA_KEY }}" | tr -d '\r' > key.json
-          python3 -m json.tool key.json > /dev/null
-          echo "✅ GCP_SA_KEY secret is valid JSON"
+      - name: Configure Docker authentication
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
-      # ----------------------------------------------
-      # Step 4: Activate service account credentials
-      # ----------------------------------------------
-      - name: Activate Service Account
-        shell: bash
-        run: |
-          echo "${{ secrets.GCP_SA_KEY }}" | tr -d '\r' > key.json
-          gcloud auth activate-service-account --key-file=key.json
-          gcloud config set project ${{ env.PROJECT_ID }}
-
-      # ----------------------------------------------
-      # Step 5: Configure Docker authentication for Artifact Registry
-      # ----------------------------------------------
-      - name: Configure Docker for Artifact Registry
-        run: |
-          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
-
-      # ----------------------------------------------
-      # Step 6: Build Docker image
-      # ----------------------------------------------
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.SERVICE_NAME }}:latest .
+          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/node-repo/${{ env.SERVICE }}:${{ github.sha }} .
 
-      # ----------------------------------------------
-      # Step 7: Push Docker image to Artifact Registry
-      # ----------------------------------------------
       - name: Push Docker image
         run: |
-          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.SERVICE_NAME }}:latest
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/node-repo/${{ env.SERVICE }}:${{ github.sha }}
 
-      # ----------------------------------------------
-      # Step 8: Deploy to Cloud Run
-      # ----------------------------------------------
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.SERVICE_NAME }}:latest \
-            --region ${{ env.REGION }} \
-            --platform managed \
+          gcloud run deploy ${{ env.SERVICE }} \
+            --image=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/node-repo/${{ env.SERVICE }}:${{ github.sha }} \
+            --region=${{ env.REGION }} \
+            --platform=managed \
             --allow-unauthenticated
-
-      # ----------------------------------------------
-      # Step 9: Cleanup (optional)
-      # ----------------------------------------------
-      - name: Cleanup key file
-        if: always()
-        run: rm -f key.json
-
-
