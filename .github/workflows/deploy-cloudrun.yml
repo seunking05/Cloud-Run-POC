@@ -1,69 +1,93 @@
 name: Deploy to Cloud Run
 
 on:
-  # Automatically deploy on push to main
+  workflow_dispatch:        # <-- adds manual trigger
   push:
     branches:
-      - main
-
-  # Allow manual trigger from GitHub UI
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: "Select environment to deploy to (e.g. dev, prod)"
-        required: false
-        default: "dev"
-
-env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  REGION: ${{ secrets.REGION }}
-  REPOSITORY: ${{ secrets.REPOSITORY }}
-  SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
-  IMAGE: ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE_NAME }}:latest
+      - main                # also runs automatically when main is updated
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy to Cloud Run (${{ github.event.inputs.environment }})
+
+    env:
+      PROJECT_ID: swift-castle-475200-j1
+      REGION: us-central1
+      SERVICE_NAME: node-cloudrun-demo
+      REPO_NAME: node-repo
 
     steps:
+      # ----------------------------------------------
+      # Step 1: Checkout repository
+      # ----------------------------------------------
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # ----------------------------------------------
+      # Step 2: Set up Google Cloud SDK
+      # ----------------------------------------------
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
+          project_id: ${{ env.PROJECT_ID }}
+          install_components: "beta"
 
-      - name: Activate Service Account
+      # ----------------------------------------------
+      # Step 3: Validate GCP service-account key format
+      # ----------------------------------------------
+      - name: Validate GCP_SA_KEY JSON
         run: |
-          echo "${{ secrets.GCP_SA_KEY }}" > ${{ runner.temp }}/key.json
-          gcloud auth activate-service-account --key-file=${{ runner.temp }}/key.json
-          gcloud config set project $PROJECT_ID
+          echo "${{ secrets.GCP_SA_KEY }}" | tr -d '\r' > key.json
+          python3 -m json.tool key.json > /dev/null
+          echo "✅ GCP_SA_KEY secret is valid JSON"
 
+      # ----------------------------------------------
+      # Step 4: Activate service account credentials
+      # ----------------------------------------------
+      - name: Activate Service Account
+        shell: bash
+        run: |
+          echo "${{ secrets.GCP_SA_KEY }}" | tr -d '\r' > key.json
+          gcloud auth activate-service-account --key-file=key.json
+          gcloud config set project ${{ env.PROJECT_ID }}
+
+      # ----------------------------------------------
+      # Step 5: Configure Docker authentication for Artifact Registry
+      # ----------------------------------------------
       - name: Configure Docker for Artifact Registry
         run: |
-          gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev --quiet
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
+      # ----------------------------------------------
+      # Step 6: Build Docker image
+      # ----------------------------------------------
       - name: Build Docker image
         run: |
-          docker build -t $IMAGE .
+          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.SERVICE_NAME }}:latest .
 
-      - name: Authenticate Docker using gcloud credentials
-        run: |
-          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${{ secrets.REGION }}-docker.pkg.dev
-
+      # ----------------------------------------------
+      # Step 7: Push Docker image to Artifact Registry
+      # ----------------------------------------------
       - name: Push Docker image
         run: |
-          docker push $IMAGE
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.SERVICE_NAME }}:latest
 
+      # ----------------------------------------------
+      # Step 8: Deploy to Cloud Run
+      # ----------------------------------------------
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy $SERVICE_NAME \
-            --image $IMAGE \
-            --region $REGION \
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.SERVICE_NAME }}:latest \
+            --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated
+
+      # ----------------------------------------------
+      # Step 9: Cleanup (optional)
+      # ----------------------------------------------
+      - name: Cleanup key file
+        if: always()
+        run: rm -f key.json
+
 
