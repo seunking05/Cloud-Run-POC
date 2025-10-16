@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "swift-castle-475200-j1",
+  "private_key_id": "ee83727d762e84ab8b2c10c10b29df19a198b006",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDhYJQsutb9TFjQ\n8r07BzqguVl5XQJ7UvaxiRH4c1+fh8vumG211c3eZPvUGy9bA3UJ20ugq43jiXfX\nHAg6+j9nFJPcx5ECOeo6FuFLh8oWwaPIcGau2RONKXlwqFaZ3EgTP7JFd+OkkcdB\n5PZXrEcibZL1qLVIT1/vk1XcuFPuHuhtqAgjJBF1zWfvoaZTEp2GrK62eDR/FxLM\n83WBuwXxqg/L3ZulzOJMX7yshWw+BLTPi6k4FY1vNtHqM7H5Ivex/nIEaeERREuS\nCH7u5YB6uVJ2nRPRd8Z7cqsqJ8duVIjncQ4oID3bUZUpZI/T4snXlmBdY3XSD6U/\nSG+JDGh3AgMBAAECggEAHdlvNoS2ZaIqHzO5rpWKBRsXR79y99y95zc1Zez4jLCX\nvgLP1lCPWAroNCg3kOZ30UrgjNKRKRdzWPjm+XyxpK2GhIFP6iC72LQKubitzMQa\nX453eGUwCuGj1QZj6zPQE0XmjqnOwLnn+d5hEVferKd2L8qyMSCwyZJUwbYOCPrX\noDXA5URE5PyvtBbgOZfOqVXsZ29JILALu45ZCTTypmAAddNnttuYa1TyqoYL7vG3\nWtGxey7Mv5e9OKCJnfBdCd9EXGZix4pDHSf812R3gtr2JVQILhOOxsbRJWsDzMg8\n44Q6oQc0m1HRuLLn/jNghjVV1eVMcq1LPUqNJta2cQKBgQD6NgLGwDhMEAZiU6Nh\nxmjUK7igLjfMjWul1h4LmBR/jcOQE4hWjuyoOgECzkz/TB3DsexOYnwwFarrMRPG\nTdvxRvyudIHKkLokZ/Fv3tFvjEhzzURKF/zdedVVDy6biuCC8X01L/rMjstOnt6K\nU8I4p1rVhWoiaUu0eq0teYJskQKBgQDml3qYOtlXtoOQdlZbJb6CFuizFiAN+DFD\n6TNGSaSaLkgHidrlBVFqUhNIBfyAKkyllhpGiBnj42UxAH8iNp2p0NMgqKoF5jzK\noCUvtf2iVyJkXMkwJJlWVFTqvdUg8UebEDaRVh4wJY5FpBm/4erRcpjyjR/6GSem\ns7Z4+KaohwKBgBriptW4XdQ+fJEgL5QX/7ecoxADJ1fBcmm1YjEYvEsgbn0SvDmg\nzekdonIsvLVJ9oDKo3ugtXttOJphAaDzSMjaOdh9CF09w+KZkKXWqWZ1Cmv3CHl1\nrmQV7Uhggz+PYqRvUmbeqvJD/bCK/ZqbeWkhAm+jEE52Rf40mFskjVEhAoGAWVze\n/9vemuV6eyPBN7Wa7ONf7vdmGMPUo9LeMiEcDzxcYb+E+zhiYufH3SOkxS6fYZSY\nPjlEf1KCxsjAfEvaMhNhnsh+i6a8bHI/twu6bY2DII3s0iF84z3vYsGKtSeMboWM\nACr1rAcB6e88o2Y0EFNu/qC+gbf569q9nogOXkUCgYEAvbqhv0Ne1BEwk/5WRY3r\n62rWk0gOE3EiH4R411sk7q4CxplmdoxUsoK/ZOnuH5WEjOaTNeIGj1idbuSXrc1Z\nBKVJcMs5lM8BtPM3DpJJ7aab++LjOV6aacdQdlsZn0vaAaEAVhu1waFjXe4Pv9NP\nB6zBp195uWuZjb5eQAVMeJQ=\n-----END PRIVATE KEY-----\n",
+  "client_email": "github-actions-deployer@swift-castle-475200-j1.iam.gserviceaccount.com",
+  "client_id": "116776993342029221370",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/github-actions-deployer%40swift-castle-475200-j1.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
