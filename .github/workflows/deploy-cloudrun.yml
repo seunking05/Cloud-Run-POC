@@ -1,20 +1,30 @@
 name: Deploy to Cloud Run
 
 on:
+  # Automatically deploy on push to main
   push:
     branches:
       - main
+
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select environment to deploy to (e.g. dev, prod)"
+        required: false
+        default: "dev"
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: ${{ secrets.REGION }}
   REPOSITORY: ${{ secrets.REPOSITORY }}
   SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
-  IMAGE: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE_NAME }}:latest
+  IMAGE: ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE_NAME }}:latest
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    name: Deploy to Cloud Run (${{ github.event.inputs.environment }})
 
     steps:
       - name: Checkout code
@@ -27,12 +37,26 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
 
-      - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+      - name: Activate Service Account
+        run: |
+          echo "${{ secrets.GCP_SA_KEY }}" > ${{ runner.temp }}/key.json
+          gcloud auth activate-service-account --key-file=${{ runner.temp }}/key.json
+          gcloud config set project $PROJECT_ID
 
-      - name: Build and push Docker image
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev --quiet
+
+      - name: Build Docker image
         run: |
           docker build -t $IMAGE .
+
+      - name: Authenticate Docker using gcloud credentials
+        run: |
+          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${{ secrets.REGION }}-docker.pkg.dev
+
+      - name: Push Docker image
+        run: |
           docker push $IMAGE
 
       - name: Deploy to Cloud Run
@@ -42,3 +66,4 @@ jobs:
             --region $REGION \
             --platform managed \
             --allow-unauthenticated
+
