@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-        PROJECT_ID = "swift-castle-475200-j1"   // replace with your GCP project ID
-        REGION = "us-central1"                  // replace with your region
-        SERVICE_NAME = "cloud-run-jenkins-demo" // replace with your Cloud Run service name
+        PROJECT_ID = "swift-castle-475200-j1"
+        REGION = "us-central1"
+        SERVICE_NAME = "cloud-run-jenkins-demo"
         IMAGE_NAME = "cloud-run-jenkins-image"
-        ARTIFACT_REPO = "node-repo"        // replace with your Artifact Registry repo name
+        ARTIFACT_REPO = "node-repo"
         GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-service-account-key')
         GCLOUD_PATH = "\"C:\\Program Files (x86)\\Google\\Cloud SDK\\google-cloud-sdk\\bin\\gcloud.cmd\""
     }
@@ -66,7 +66,7 @@ pipeline {
                         --image %REGION%-docker.pkg.dev/%PROJECT_ID%/%ARTIFACT_REPO%/%IMAGE_NAME%:latest ^
                         --region %REGION% ^
                         --platform managed ^
-                        --allow-unauthenticated
+                        --allow-unauthenticated ^
                         --project %PROJECT_ID%
                 """
             }
