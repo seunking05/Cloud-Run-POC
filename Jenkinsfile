@@ -6,7 +6,7 @@ pipeline {
         REGION = "us-central1"                  // replace with your region
         SERVICE_NAME = "cloud-run-jenkins-demo" // replace with your Cloud Run service name
         IMAGE_NAME = "cloud-run-jenkins-image"
-        ARTIFACT_REPO = "node-cloudrun-demo"        // replace with your Artifact Registry repo name
+        ARTIFACT_REPO = "node-repo"        // replace with your Artifact Registry repo name
         GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-service-account-key')
         GCLOUD_PATH = "\"C:\\Program Files (x86)\\Google\\Cloud SDK\\google-cloud-sdk\\bin\\gcloud.cmd\""
     }
