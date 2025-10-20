@@ -8,7 +8,7 @@ pipeline {
         IMAGE_NAME = "cloud-run-jenkins-image"
         ARTIFACT_REPO = "cloud-run-repo"        // replace with your Artifact Registry repo name
         GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-service-account-key')
-        GCLOUD_PATH = "\"C:\\Program Files\\Google\\Cloud SDK\\google-cloud-sdk\\bin\\gcloud.cmd\""
+        GCLOUD_PATH = "\"C:\\Program Files (x86)\\Google\\Cloud SDK\\google-cloud-sdk\\bin\\gcloud.cmd\""
     }
 
     stages {
