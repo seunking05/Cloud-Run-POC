@@ -67,6 +67,7 @@ pipeline {
                         --region %REGION% ^
                         --platform managed ^
                         --allow-unauthenticated
+                        --project %PROJECT_ID%
                 """
             }
         }
